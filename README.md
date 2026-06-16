@@ -105,7 +105,11 @@ cd desktop && npm install && npm run dev
 Comp-only win prediction tops out around **51–55%**. Adding player champion-mastery / skill
 features pushes it to **~60%**. Anything claiming more pre-game is overselling. The UI presents
 the model as a soft "slight edge" bar with the synergy/counter reasons behind it — never a
-confident verdict. Probabilities are **calibrated** (Platt/isotonic) so "58%" means 58%.
+confident verdict. Probabilities are **calibrated** (isotonic) so "58%" means 58%.
+
+A **baseline model ships with the repo** (`ml-service/models/winprob_model.pkl`), trained on a
+1500-game ranked crawl — held-out accuracy ≈ **54%**, ECE ≈ 0.02 — so win-probability works on a
+fresh clone. Retrain on a larger corpus any time with `scripts/crawl_and_train.sh`.
 
 ---
 
