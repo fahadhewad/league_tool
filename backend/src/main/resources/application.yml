@@ -51,6 +51,11 @@ riot:
       backoff-ms: 1000
       max-backoff-ms: 20000
 
+crawl:
+  # Only these (Summoner's Rift 5v5) queue ids are ingested into the corpus and aggregates:
+  # 420 ranked solo, 440 ranked flex, 400 normal draft, 430 normal blind, 700 clash.
+  accepted-queues: ${CRAWL_ACCEPTED_QUEUES:420,440,400,430,700}
+
 champion:
   datadragon:
     base-url: ${DDRAGON_BASE_URL:https://ddragon.leagueoflegends.com}

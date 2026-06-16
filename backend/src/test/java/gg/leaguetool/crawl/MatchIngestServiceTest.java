@@ -52,6 +52,17 @@ class MatchIngestServiceTest {
     }
 
     @Test
+    void skipsNonSummonersRift5v5Queues() {
+        // queue 1700 = Arena; must not be ingested into the comp corpus.
+        boolean ingested = ingest.ingest(MatchFixtures.match("ARENA_1", 1700, java.util.List.of(
+                MatchFixtures.participant("a", 1, 100, "", true),
+                MatchFixtures.participant("b", 2, 200, "", false))));
+
+        assertThat(ingested).isFalse();
+        assertThat(matches.count()).isZero();
+    }
+
+    @Test
     void isIdempotentAndAccumulatesAcrossMatches() {
         ingest.ingest(MatchFixtures.standardMatch("EUW1_1", 1, true));
         boolean again = ingest.ingest(MatchFixtures.standardMatch("EUW1_1", 1, true));

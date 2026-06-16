@@ -12,12 +12,14 @@ import gg.leaguetool.persistence.MatchParticipantEntity;
 import gg.leaguetool.persistence.MatchParticipantRepository;
 import gg.leaguetool.persistence.MatchRepository;
 import gg.leaguetool.riot.dto.MatchDto;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -33,15 +35,18 @@ public class MatchIngestService {
     private final ChampionRoleStatRepository roleStats;
     private final ChampionPairStatRepository pairStats;
     private final ChampionMatchupStatRepository matchupStats;
+    private final Set<Integer> acceptedQueues;
 
     public MatchIngestService(MatchRepository matches, MatchParticipantRepository participants,
                               ChampionRoleStatRepository roleStats, ChampionPairStatRepository pairStats,
-                              ChampionMatchupStatRepository matchupStats) {
+                              ChampionMatchupStatRepository matchupStats,
+                              @Value("${crawl.accepted-queues:420,440,400,430,700}") Set<Integer> acceptedQueues) {
         this.matches = matches;
         this.participants = participants;
         this.roleStats = roleStats;
         this.pairStats = pairStats;
         this.matchupStats = matchupStats;
+        this.acceptedQueues = acceptedQueues;
     }
 
     /** @return true if the match was newly ingested, false if skipped (already present / invalid). */
@@ -55,6 +60,10 @@ public class MatchIngestService {
             return false;
         }
         MatchDto.Info info = match.info();
+        // Only Summoner's Rift 5v5 queues build a useful comp corpus; skip ARAM/Arena/etc.
+        if (!acceptedQueues.isEmpty() && !acceptedQueues.contains(info.queueId())) {
+            return false;
+        }
         List<MatchDto.Participant> ps = info.participants();
         if (ps == null || ps.isEmpty()) {
             return false;

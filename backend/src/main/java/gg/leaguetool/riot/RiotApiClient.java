@@ -101,11 +101,25 @@ public class RiotApiClient {
 
     @Cacheable(cacheNames = CacheConfig.MATCH_IDS, key = "#region + ':' + #puuid + ':' + #start + ':' + #count")
     public List<String> getMatchIds(Region region, String puuid, int start, int count) {
-        URI uri = base(region.host())
+        return getMatchIds(region, puuid, start, count, null);
+    }
+
+    /**
+     * Match ids for a player, optionally filtered by Match-V5 {@code type} (e.g. {@code ranked}).
+     * The crawler passes {@code ranked} so it builds a Summoner's Rift corpus rather than wandering
+     * into Arena/ARAM games.
+     */
+    @Cacheable(cacheNames = CacheConfig.MATCH_IDS,
+            key = "#region + ':' + #puuid + ':' + #start + ':' + #count + ':' + #type")
+    public List<String> getMatchIds(Region region, String puuid, int start, int count, String type) {
+        UriComponentsBuilder builder = base(region.host())
                 .pathSegment("lol", "match", "v5", "matches", "by-puuid", puuid, "ids")
                 .queryParam("start", start)
-                .queryParam("count", count)
-                .build().encode().toUri();
+                .queryParam("count", count);
+        if (type != null && !type.isBlank()) {
+            builder.queryParam("type", type);
+        }
+        URI uri = builder.build().encode().toUri();
         return execute(() -> riot.get().uri(uri).retrieve().body(STRING_LIST),
                 "match ids " + puuid);
     }

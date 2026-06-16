@@ -26,6 +26,7 @@ public class MatchCrawler {
 
     private static final Logger log = LoggerFactory.getLogger(MatchCrawler.class);
     private static final int PAGE_SIZE = 20;
+    private static final String RANKED = "ranked";
 
     private final RiotApiClient riot;
     private final MatchIngestService ingest;
@@ -47,7 +48,7 @@ public class MatchCrawler {
         int ingested = 0;
         while (!frontier.isEmpty() && ingested < maxMatches) {
             String puuid = frontier.poll();
-            List<String> matchIds = riot.getMatchIds(region, puuid, 0, PAGE_SIZE);
+            List<String> matchIds = riot.getMatchIds(region, puuid, 0, PAGE_SIZE, RANKED);
             for (String matchId : matchIds) {
                 if (ingested >= maxMatches) {
                     break;

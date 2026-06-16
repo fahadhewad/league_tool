@@ -23,7 +23,7 @@ class MatchCrawlerTest {
 
     @Test
     void crawlsUpToTheMatchLimitAndStops() {
-        when(riot.getMatchIds(Region.EUROPE, "seed", 0, 20)).thenReturn(List.of("M1", "M2", "M3"));
+        when(riot.getMatchIds(Region.EUROPE, "seed", 0, 20, "ranked")).thenReturn(List.of("M1", "M2", "M3"));
         when(riot.getMatch(Region.EUROPE, "M1")).thenReturn(MatchFixtures.standardMatch("M1", 1, true));
         when(riot.getMatch(Region.EUROPE, "M2")).thenReturn(MatchFixtures.standardMatch("M2", 11, true));
         when(ingest.ingest(any())).thenReturn(true);
