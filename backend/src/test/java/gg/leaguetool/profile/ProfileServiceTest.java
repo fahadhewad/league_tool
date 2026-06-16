@@ -31,7 +31,8 @@ class ProfileServiceTest {
     @BeforeEach
     void setUp() {
         riot = mock(RiotApiClient.class);
-        service = new ProfileService(riot, new MatchHistoryService(riot));
+        var champions = new gg.leaguetool.champion.ChampionRepository(new com.fasterxml.jackson.databind.ObjectMapper());
+        service = new ProfileService(riot, new MatchHistoryService(riot), champions);
 
         AccountDto account = Fixtures.read("account.json", AccountDto.class);
         SummonerDto summoner = Fixtures.read("summoner.json", SummonerDto.class);

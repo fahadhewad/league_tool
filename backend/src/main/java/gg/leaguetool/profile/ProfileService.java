@@ -35,10 +35,13 @@ public class ProfileService {
 
     private final RiotApiClient riot;
     private final MatchHistoryService matchHistory;
+    private final gg.leaguetool.champion.ChampionRepository champions;
 
-    public ProfileService(RiotApiClient riot, MatchHistoryService matchHistory) {
+    public ProfileService(RiotApiClient riot, MatchHistoryService matchHistory,
+                          gg.leaguetool.champion.ChampionRepository champions) {
         this.riot = riot;
         this.matchHistory = matchHistory;
+        this.champions = champions;
     }
 
     public PlayerProfile getProfile(Platform platform, String gameName, String tagLine) {
@@ -60,7 +63,7 @@ public class ProfileService {
         List<ChampionMasterySummary> topMastery = riot.getChampionMasteries(platform, puuid).stream()
                 .sorted(Comparator.comparingLong(gg.leaguetool.riot.dto.ChampionMasteryDto::championPoints).reversed())
                 .limit(TOP_MASTERY)
-                .map(m -> ChampionMasterySummary.from(m, null))
+                .map(m -> ChampionMasterySummary.from(m, champions.nameOf(m.championId())))
                 .toList();
 
         List<MatchSummary> recentMatches = matchHistory.recentMatches(platform, puuid, count);
