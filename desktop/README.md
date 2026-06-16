@@ -45,3 +45,22 @@ npm run package             # build installers via electron-builder (run on the 
 
 The overlay and LCU/Live-Client features require a real League client, and installers are produced
 on the OS you target; the core logic is fully testable headlessly, which is what CI runs.
+
+## Building the Windows installer (+ uninstaller)
+Run these **on a Windows PC** (Node 20+ installed), from the `desktop/` folder:
+```powershell
+npm install
+npm run package
+```
+This produces `desktop\release\LeagueTool Setup <version>.exe`. That single installer **also
+installs an uninstaller** — there is no separate uninstaller to build:
+- it registers LeagueTool in **Settings → Apps / Add-or-Remove Programs**, and
+- writes `Uninstall LeagueTool.exe` into the install folder.
+
+Uninstalling from either place removes the app and (per `deleteAppDataOnUninstall`) its app data.
+The installer lets you choose the install directory and creates Start-menu + desktop shortcuts
+(`nsis` settings in `package.json`).
+
+> Optional: drop a `build/icon.ico` (256×256) before packaging to brand the installer/app;
+> otherwise the default Electron icon is used. For other targets: `.dmg` builds on macOS, and
+> `AppImage`/`.deb` build on Linux (`npm run package`).
