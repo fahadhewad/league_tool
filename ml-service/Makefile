@@ -12,6 +12,9 @@ venv:
 train:
 	$(PY) -m training.train
 
+train-real:
+	$(PY) -m training.train --source postgres
+
 dev:
 	$(VENV)/bin/uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 
