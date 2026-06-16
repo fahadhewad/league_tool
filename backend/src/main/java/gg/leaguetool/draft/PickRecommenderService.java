@@ -31,6 +31,18 @@ public class PickRecommenderService {
     private static final double W_FIT = 1.5;
     private static final int MAX_RESULTS = 10;
 
+    /**
+     * Total ordering for recommendations: best overall score first, then the strongest individual
+     * components, with champion id as a final stable tiebreaker. Making the order fully deterministic
+     * means equally-scored picks rank the same way regardless of the roster's iteration order.
+     */
+    private static final Comparator<PickRecommendation> RANKING =
+            Comparator.comparingDouble(PickRecommendation::score).reversed()
+                    .thenComparing(Comparator.comparingDouble(PickRecommendation::counterScore).reversed())
+                    .thenComparing(Comparator.comparingDouble(PickRecommendation::synergyScore).reversed())
+                    .thenComparing(Comparator.comparingDouble(PickRecommendation::damageFitScore).reversed())
+                    .thenComparingInt(PickRecommendation::championId);
+
     private final ChampionRepository champions;
     private final DraftDataProvider data;
 
@@ -54,7 +66,7 @@ public class PickRecommenderService {
         List<PickRecommendation> recs = champions.byRole(role).stream()
                 .filter(c -> !excluded.contains(c.id()))
                 .map(c -> score(c, role, allies, enemies, laneOpponent, allyComp))
-                .sorted(Comparator.comparingDouble(PickRecommendation::score).reversed())
+                .sorted(RANKING)
                 .limit(MAX_RESULTS)
                 .toList();
 

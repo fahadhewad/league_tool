@@ -16,7 +16,7 @@ import java.time.Duration;
  * never deal with auth. Timeouts come from {@link RiotApiProperties}.
  */
 @Configuration
-@EnableConfigurationProperties(RiotApiProperties.class)
+@EnableConfigurationProperties({RiotApiProperties.class, DataDragonProperties.class})
 public class RestClientConfig {
 
     public static final String RIOT_TOKEN_HEADER = "X-Riot-Token";
@@ -27,6 +27,18 @@ public class RestClientConfig {
         factory.setConnectTimeout(Duration.ofMillis(props.timeoutMs()));
         factory.setReadTimeout(Duration.ofMillis(props.timeoutMs()));
         return factory;
+    }
+
+    /** Data Dragon is a public CDN (no key); just a base URL and timeouts. */
+    @Bean
+    RestClient dataDragonRestClient(DataDragonProperties props, RestClient.Builder builder) {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(Duration.ofMillis(props.timeoutMs()));
+        factory.setReadTimeout(Duration.ofMillis(props.timeoutMs()));
+        return builder
+                .baseUrl(props.baseUrl())
+                .requestFactory(factory)
+                .build();
     }
 
     @Bean

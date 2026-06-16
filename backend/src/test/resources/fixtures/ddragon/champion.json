@@ -1,0 +1,27 @@
+{
+  "type": "champion",
+  "version": "16.12.1",
+  "data": {
+    "Garen": {
+      "id": "Garen", "key": "86", "name": "Garen",
+      "tags": ["Fighter", "Tank"],
+      "info": {"attack": 7, "defense": 7, "magic": 1, "difficulty": 5},
+      "partype": "None"
+    },
+    "Leona": {
+      "id": "Leona", "key": "89", "name": "Leona",
+      "tags": ["Tank", "Support"],
+      "info": {"attack": 4, "defense": 9, "magic": 3, "difficulty": 4}
+    },
+    "Smolder": {
+      "id": "Smolder", "key": "901", "name": "Smolder",
+      "tags": ["Marksman", "Mage"],
+      "info": {"attack": 2, "defense": 4, "magic": 6, "difficulty": 6}
+    },
+    "Naafiri": {
+      "id": "Naafiri", "key": "950", "name": "Naafiri",
+      "tags": ["Assassin", "Fighter"],
+      "info": {"attack": 8, "defense": 5, "magic": 2, "difficulty": 2}
+    }
+  }
+}

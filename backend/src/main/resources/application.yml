@@ -30,6 +30,15 @@ riot:
       backoff-ms: 1000
       max-backoff-ms: 20000
 
+champion:
+  datadragon:
+    base-url: ${DDRAGON_BASE_URL:https://ddragon.leagueoflegends.com}
+    locale: ${DDRAGON_LOCALE:en_US}
+    # The bundled seed is already a full, current roster, so a network refresh is opt-in. Set true
+    # to pull the latest patch's champions at boot (best-effort; falls back to the seed on failure).
+    refresh-on-startup: ${DDRAGON_REFRESH_ON_STARTUP:false}
+    timeout-ms: 8000
+
 ml:
   service:
     url: ${ML_SERVICE_URL:http://localhost:8001}
