@@ -40,3 +40,12 @@ export interface WinProbability {
   modelLoaded: boolean;
   source: string;
 }
+
+export interface Champion {
+  id: number;
+  name: string;
+  roles: Role[];
+  damageType: string;
+  tags: string[];
+  cc: boolean;
+}

@@ -68,4 +68,60 @@ body.overlay {
   background: rgba(11, 15, 24, 0.82);
   border: 1px solid rgba(59, 130, 246, 0.5);
   backdrop-filter: blur(4px);
+  font-size: 0.8rem;
+}
+
+#overlay-header {
+  font-weight: 600;
+  color: #93c5fd;
+  margin-bottom: 6px;
+}
+
+.section-title {
+  font-weight: 600;
+  margin: 8px 0 4px;
+  color: #cbd5f5;
+}
+
+.muted {
+  color: #8b93a7;
+  font-size: 0.72rem;
+  display: block;
+}
+
+.teams,
+.objectives {
+  margin: 2px 0;
+}
+
+.winprob {
+  margin: 4px 0 6px;
+}
+
+.winprob-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: #1d2436;
+  overflow: hidden;
+  margin: 3px 0;
+}
+
+.winprob-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #22c55e);
+}
+
+.picks,
+.events {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.picks li {
+  margin-bottom: 4px;
+}
+
+.pick-name {
+  display: block;
+  font-weight: 600;
 }

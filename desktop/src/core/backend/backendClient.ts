@@ -1,6 +1,7 @@
 /** Client for the LeagueTool Spring backend. */
 import type {
   AnalyzeRequest,
+  Champion,
   PickRecommendations,
   RecommendRequest,
   WinProbability,
@@ -38,6 +39,10 @@ export class BackendClient {
 
   winProbability(request: AnalyzeRequest): Promise<WinProbability> {
     return this.json<WinProbability>("/api/v1/draft/win-probability", this.post(request));
+  }
+
+  getChampions(): Promise<Champion[]> {
+    return this.json<Champion[]>("/api/v1/champions");
   }
 
   private post(body: unknown): RequestInit {

@@ -13,12 +13,15 @@ import { Agent } from "undici";
 
 import { BackendClient } from "../core/backend/backendClient";
 import { toRecommendInput } from "../core/champSelect/champSelectModel";
+import { buildDraftOverlayModel } from "../core/champSelect/draftOverlayModel";
 import {
   anonymizeChampSelect,
   type ChampSelectParticipant,
 } from "../core/compliance/rankedAnonymizer";
 import { LcuClient } from "../core/lcu/lcuClient";
 import { defaultLockfilePaths, parseLockfile, type Lockfile } from "../core/lcu/lockfile";
+import { LiveClient } from "../core/liveclient/liveClient";
+import { buildLiveOverlayModel } from "../core/liveclient/liveOverlayModel";
 
 const moduleDir = dirname(fileURLToPath(import.meta.url));
 
@@ -28,9 +31,21 @@ const localFetch = (url: string, init: RequestInit = {}): Promise<Response> =>
   fetch(url, { ...init, dispatcher: insecureAgent } as RequestInit);
 
 const backend = new BackendClient({ baseUrl: process.env.BACKEND_URL ?? "http://localhost:8080" });
+const liveClient = new LiveClient(localFetch);
 
 let mainWindow: BrowserWindow | null = null;
 let overlayWindow: BrowserWindow | null = null;
+let championNames: Record<number, string> = {};
+
+/** Load the id -> name map once (best-effort); the overlay uses it to label champions. */
+async function loadChampions(): Promise<void> {
+  try {
+    const champions = await backend.getChampions();
+    championNames = Object.fromEntries(champions.map((c) => [c.id, c.name]));
+  } catch {
+    // backend not up yet; a later poll will retry via loadChampions()
+  }
+}
 
 function createWindows(): void {
   mainWindow = new BrowserWindow({
@@ -40,6 +55,7 @@ function createWindows(): void {
       preload: join(moduleDir, "preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
+      sandbox: false, // required to load the ESM preload bundle; context isolation still on
     },
   });
   void mainWindow.loadFile(join(moduleDir, "../renderer/index.html"));
@@ -52,7 +68,7 @@ function createWindows(): void {
     alwaysOnTop: true,
     skipTaskbar: true,
     focusable: false,
-    webPreferences: { preload: join(moduleDir, "preload.js"), contextIsolation: true },
+    webPreferences: { preload: join(moduleDir, "preload.js"), contextIsolation: true, sandbox: false },
   });
   void overlayWindow.loadFile(join(moduleDir, "../renderer/overlay.html"));
   overlayWindow.setIgnoreMouseEvents(true, { forward: true });
@@ -108,14 +124,42 @@ async function pollChampSelect(): Promise<void> {
     .winProbability({ allies: input.allies, enemies: input.enemies })
     .catch(() => null);
 
-  const payload = { participants: safeParticipants, recommendations, winProbability };
-  mainWindow?.webContents.send("champ-select", payload);
-  overlayWindow?.webContents.send("champ-select", payload);
+  if (Object.keys(championNames).length === 0) {
+    await loadChampions();
+  }
+  const draft = buildDraftOverlayModel({
+    participants: safeParticipants,
+    recommendations,
+    winProbability,
+    championNames,
+  });
+  mainWindow?.webContents.send("champ-select", draft);
+  overlayWindow?.webContents.send("champ-select", draft);
+}
+
+async function pollLiveGame(): Promise<void> {
+  let stats;
+  let players;
+  let events;
+  try {
+    [stats, players, events] = await Promise.all([
+      liveClient.gameStats(),
+      liveClient.playerList(),
+      liveClient.events(),
+    ]);
+  } catch {
+    return; // not currently in a live game
+  }
+  const live = buildLiveOverlayModel(stats, players, events);
+  mainWindow?.webContents.send("in-game", live);
+  overlayWindow?.webContents.send("in-game", live);
 }
 
 app.whenReady().then(() => {
   createWindows();
+  void loadChampions();
   setInterval(() => void pollChampSelect(), 2000);
+  setInterval(() => void pollLiveGame(), 3000);
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindows();

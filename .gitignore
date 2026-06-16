@@ -38,6 +38,7 @@ ml-service/data/*.csv
 # ---- Node / Electron desktop ----
 desktop/node_modules/
 desktop/dist/
+desktop/release/
 desktop/out/
 desktop/.vite/
 npm-debug.log*

@@ -8,8 +8,9 @@
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "build": "tsc",
-    "dev": "electron ."
+    "build": "node scripts/build.mjs",
+    "dev": "npm run build && electron .",
+    "package": "npm run build && electron-builder"
   },
   "dependencies": {
     "undici": "^6.0.0"
@@ -17,7 +18,28 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "electron": "^42.0.0",
+    "electron-builder": "^25.0.0",
+    "esbuild": "^0.24.0",
     "typescript": "^5.6.0",
     "vitest": "^4.1.0"
+  },
+  "build": {
+    "appId": "gg.leaguetool.desktop",
+    "productName": "LeagueTool",
+    "files": [
+      "dist/**/*"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "linux": {
+      "target": "AppImage"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    }
   }
 }
