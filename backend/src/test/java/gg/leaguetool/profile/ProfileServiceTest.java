@@ -31,7 +31,7 @@ class ProfileServiceTest {
     @BeforeEach
     void setUp() {
         riot = mock(RiotApiClient.class);
-        service = new ProfileService(riot);
+        service = new ProfileService(riot, new MatchHistoryService(riot));
 
         AccountDto account = Fixtures.read("account.json", AccountDto.class);
         SummonerDto summoner = Fixtures.read("summoner.json", SummonerDto.class);

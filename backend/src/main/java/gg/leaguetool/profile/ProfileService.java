@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Builds a {@link PlayerProfile} by composing Account-V1, Summoner-V4, League-V4,
@@ -35,9 +34,11 @@ public class ProfileService {
             });
 
     private final RiotApiClient riot;
+    private final MatchHistoryService matchHistory;
 
-    public ProfileService(RiotApiClient riot) {
+    public ProfileService(RiotApiClient riot, MatchHistoryService matchHistory) {
         this.riot = riot;
+        this.matchHistory = matchHistory;
     }
 
     public PlayerProfile getProfile(Platform platform, String gameName, String tagLine) {
@@ -62,12 +63,7 @@ public class ProfileService {
                 .map(m -> ChampionMasterySummary.from(m, null))
                 .toList();
 
-        List<String> matchIds = riot.getMatchIds(platform.matchRegion(), puuid, 0, count);
-        List<MatchSummary> recentMatches = matchIds.stream()
-                .map(id -> riot.getMatch(platform.matchRegion(), id))
-                .map(match -> MatchSummary.forPlayer(match, puuid))
-                .filter(Objects::nonNull)
-                .toList();
+        List<MatchSummary> recentMatches = matchHistory.recentMatches(platform, puuid, count);
 
         return new PlayerProfile(
                 puuid,
