@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'" />
+    <title>LeagueTool</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header><h1>LeagueTool</h1><span id="status">Waiting for the League client…</span></header>
+
+    <section>
+      <h2>Profile lookup</h2>
+      <form id="profile-form">
+        <input name="platform" placeholder="euw1" value="euw1" />
+        <input name="gameName" placeholder="Game name" />
+        <input name="tagLine" placeholder="Tag" />
+        <button type="submit">Look up</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Live draft</h2>
+      <pre id="output">Join a champ select to see synergy, counters, pick recommendations and win probability.</pre>
+    </section>
+
+    <!-- Compiled by the build step to ./renderer.js next to this file. -->
+    <script type="module" src="./renderer.js"></script>
+  </body>
+</html>

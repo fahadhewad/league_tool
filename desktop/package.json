@@ -1,0 +1,23 @@
+{
+  "name": "leaguetool-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "LeagueTool Electron desktop client and compliant in-game overlay",
+  "main": "dist/main/main.js",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "dev": "electron ."
+  },
+  "dependencies": {
+    "undici": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "electron": "^42.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^4.1.0"
+  }
+}
