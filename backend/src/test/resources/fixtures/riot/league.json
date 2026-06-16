@@ -1,0 +1,32 @@
+[
+  {
+    "leagueId": "league-solo-001",
+    "queueType": "RANKED_FLEX_SR",
+    "tier": "DIAMOND",
+    "rank": "II",
+    "puuid": "PUUID-AGURIN-0001",
+    "summonerId": "summoner-id-001",
+    "leaguePoints": 12,
+    "wins": 30,
+    "losses": 28,
+    "veteran": false,
+    "inactive": false,
+    "freshBlood": false,
+    "hotStreak": false
+  },
+  {
+    "leagueId": "league-flex-001",
+    "queueType": "RANKED_SOLO_5x5",
+    "tier": "CHALLENGER",
+    "rank": "I",
+    "puuid": "PUUID-AGURIN-0001",
+    "summonerId": "summoner-id-001",
+    "leaguePoints": 845,
+    "wins": 320,
+    "losses": 250,
+    "veteran": true,
+    "inactive": false,
+    "freshBlood": false,
+    "hotStreak": true
+  }
+]

@@ -1,0 +1,59 @@
+{
+  "metadata": {
+    "dataVersion": "2",
+    "matchId": "EUW1_6543210001",
+    "participants": ["PUUID-AGURIN-0001", "PUUID-ENEMY-0002"]
+  },
+  "info": {
+    "gameCreation": 1700000000000,
+    "gameDuration": 1834,
+    "gameStartTimestamp": 1700000000000,
+    "gameEndTimestamp": 1700001834000,
+    "queueId": 420,
+    "gameVersion": "14.23.1",
+    "gameMode": "CLASSIC",
+    "gameType": "MATCHED_GAME",
+    "participants": [
+      {
+        "puuid": "PUUID-AGURIN-0001",
+        "riotIdGameName": "Agurin",
+        "riotIdTagline": "EUW",
+        "championId": 64,
+        "championName": "LeeSin",
+        "teamPosition": "JUNGLE",
+        "individualPosition": "JUNGLE",
+        "teamId": 100,
+        "win": true,
+        "kills": 8,
+        "deaths": 3,
+        "assists": 14,
+        "totalDamageDealtToChampions": 21500,
+        "totalMinionsKilled": 42,
+        "neutralMinionsKilled": 168,
+        "goldEarned": 13400,
+        "champLevel": 16,
+        "visionScore": 34
+      },
+      {
+        "puuid": "PUUID-ENEMY-0002",
+        "riotIdGameName": "Opponent",
+        "riotIdTagline": "EUW",
+        "championId": 121,
+        "championName": "Khazix",
+        "teamPosition": "JUNGLE",
+        "individualPosition": "JUNGLE",
+        "teamId": 200,
+        "win": false,
+        "kills": 5,
+        "deaths": 7,
+        "assists": 6,
+        "totalDamageDealtToChampions": 18900,
+        "totalMinionsKilled": 30,
+        "neutralMinionsKilled": 150,
+        "goldEarned": 11200,
+        "champLevel": 15,
+        "visionScore": 22
+      }
+    ]
+  }
+}

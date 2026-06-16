@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: leaguetool-backend
+
+server:
+  port: ${SERVER_PORT:8080}
+
+riot:
+  api:
+    key: ${RIOT_API_KEY:}
+    default-platform: ${RIOT_DEFAULT_PLATFORM:euw1}
+    base-url-template: "https://%s.api.riotgames.com"
+    timeout-ms: 8000
+    rate-limit:
+      requests-per-second: 20
+      requests-per-two-minutes: 100
+    retry:
+      max-attempts: 3
+      backoff-ms: 1000
+      max-backoff-ms: 20000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,caches
+  endpoint:
+    health:
+      show-details: when_authorized
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    gg.leaguetool: INFO
