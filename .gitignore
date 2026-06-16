@@ -55,3 +55,6 @@ Thumbs.db
 # ---- Logs / runtime ----
 *.log
 logs/
+
+# screenshot harness output
+desktop/shots/

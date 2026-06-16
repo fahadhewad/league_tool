@@ -28,6 +28,14 @@ in-game Electron overlay driven by Riot's local APIs.
 
 ---
 
+## Screenshots
+
+| Champ-select overlay | In-game overlay | Main window |
+|---|---|---|
+| ![Champ-select overlay](docs/screenshots/overlay-draft.png) | ![In-game overlay](docs/screenshots/overlay-ingame.png) | ![Main window](docs/screenshots/main-window.png) |
+
+_Rendered from the real renderer with sample data (regenerate with `xvfb-run electron scripts/screenshot.mjs --no-sandbox` in `desktop/`)._
+
 ## Architecture
 
 A polyglot monorepo. Each layer is independently buildable and testable.

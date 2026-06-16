@@ -32,7 +32,7 @@ public class CrawlController {
     public CrawlResult crawl(
             @RequestParam String platform,
             @RequestParam @NotBlank String puuid,
-            @RequestParam(defaultValue = "50") @Min(1) @Max(2000) int maxMatches) {
+            @RequestParam(defaultValue = "50") @Min(1) @Max(50000) int maxMatches) {
         Platform p = Platform.fromString(platform);
         int ingested = crawler.crawl(p, puuid, maxMatches);
         return new CrawlResult(ingested, maxMatches);
