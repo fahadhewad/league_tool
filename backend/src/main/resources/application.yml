@@ -19,6 +19,10 @@ riot:
       backoff-ms: 1000
       max-backoff-ms: 20000
 
+ml:
+  service:
+    url: ${ML_SERVICE_URL:http://localhost:8001}
+
 management:
   endpoints:
     web:

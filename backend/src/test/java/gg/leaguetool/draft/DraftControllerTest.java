@@ -5,6 +5,8 @@ import gg.leaguetool.draft.model.CompSummary;
 import gg.leaguetool.draft.model.DraftAnalysis;
 import gg.leaguetool.draft.model.PickRecommendation;
 import gg.leaguetool.draft.model.PickRecommendations;
+import gg.leaguetool.draft.model.WinProbability;
+import gg.leaguetool.draft.winprob.WinProbabilityService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -32,6 +34,9 @@ class DraftControllerTest {
 
     @MockitoBean
     private PickRecommenderService recommender;
+
+    @MockitoBean
+    private WinProbabilityService winProbabilityService;
 
     @Test
     void analyzeReturnsAnalysis() throws Exception {
@@ -68,5 +73,19 @@ class DraftControllerTest {
         String body = "{\"allies\":[],\"enemies\":[],\"bans\":[]}";
         mockMvc.perform(post("/api/v1/draft/recommend").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void winProbabilityReturnsEstimate() throws Exception {
+        when(winProbabilityService.estimate(any(), any()))
+                .thenReturn(new WinProbability(0.58, true, "ml-model"));
+
+        String body = "{\"allies\":[{\"championId\":86,\"role\":\"TOP\"}],\"enemies\":[]}";
+        mockMvc.perform(post("/api/v1/draft/win-probability")
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.winProbability").value(0.58))
+                .andExpect(jsonPath("$.modelLoaded").value(true))
+                .andExpect(jsonPath("$.source").value("ml-model"));
     }
 }

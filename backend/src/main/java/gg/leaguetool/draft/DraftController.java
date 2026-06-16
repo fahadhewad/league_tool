@@ -4,6 +4,8 @@ import gg.leaguetool.draft.model.DraftAnalysis;
 import gg.leaguetool.draft.model.DraftAnalyzeRequest;
 import gg.leaguetool.draft.model.DraftRecommendRequest;
 import gg.leaguetool.draft.model.PickRecommendations;
+import gg.leaguetool.draft.model.WinProbability;
+import gg.leaguetool.draft.winprob.WinProbabilityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -20,10 +22,13 @@ public class DraftController {
 
     private final DraftAnalyzerService analyzer;
     private final PickRecommenderService recommender;
+    private final WinProbabilityService winProbability;
 
-    public DraftController(DraftAnalyzerService analyzer, PickRecommenderService recommender) {
+    public DraftController(DraftAnalyzerService analyzer, PickRecommenderService recommender,
+                           WinProbabilityService winProbability) {
         this.analyzer = analyzer;
         this.recommender = recommender;
+        this.winProbability = winProbability;
     }
 
     @PostMapping("/analyze")
@@ -37,5 +42,11 @@ public class DraftController {
     public PickRecommendations recommend(@Valid @RequestBody DraftRecommendRequest request) {
         return recommender.recommend(request.role(), request.alliesOrEmpty(),
                 request.enemiesOrEmpty(), request.bansOrEmpty());
+    }
+
+    @PostMapping("/win-probability")
+    @Operation(summary = "Estimate comp-vs-comp win probability via the ML service")
+    public WinProbability winProbability(@Valid @RequestBody DraftAnalyzeRequest request) {
+        return winProbability.estimate(request.alliesOrEmpty(), request.enemiesOrEmpty());
     }
 }
