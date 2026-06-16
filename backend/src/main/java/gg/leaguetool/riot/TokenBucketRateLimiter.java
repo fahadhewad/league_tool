@@ -3,6 +3,7 @@ package gg.leaguetool.riot;
 import gg.leaguetool.config.RiotApiProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayDeque;
@@ -13,10 +14,11 @@ import java.util.Deque;
  * per-2-minute Riot budgets simultaneously. {@link #acquire()} blocks until both windows allow a
  * request, so callers never have to reason about limits themselves.
  *
- * <p>For multi-instance deployments this can be swapped for a Redis-backed implementation behind
- * the same {@link RateLimiter} interface without touching call sites.
+ * <p>This is the default. For multi-instance deployments set {@code app.redis.enabled=true} to use
+ * {@link RedisRateLimiter}, which shares the budget across instances behind this same interface.
  */
 @Component
+@ConditionalOnProperty(name = "app.redis.enabled", havingValue = "false", matchIfMissing = true)
 public class TokenBucketRateLimiter implements RateLimiter {
 
     private static final Logger log = LoggerFactory.getLogger(TokenBucketRateLimiter.class);

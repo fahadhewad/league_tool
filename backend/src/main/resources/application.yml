@@ -1,6 +1,13 @@
 spring:
   application:
     name: leaguetool-backend
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      # We use Redis only for caching + the rate limiter, not Spring Data Redis repositories.
+      repositories:
+        enabled: false
   datasource:
     # Defaults to an in-memory H2 (PostgreSQL compatibility mode) so the app boots and tests run
     # anywhere. For a persistent crawl, override with Postgres via env, e.g.:
@@ -15,6 +22,13 @@ spring:
 
 server:
   port: ${SERVER_PORT:8080}
+
+app:
+  redis:
+    # false: in-process rate limiter + Caffeine cache (fine for a single instance, the default).
+    # true: Redis-backed distributed limiter + shared cache, so multiple instances share one Riot
+    # budget and cache. Requires the Redis at spring.data.redis.* (infra/docker-compose has one).
+    enabled: ${REDIS_ENABLED:false}
 
 admin:
   # Shared secret required (in the X-Admin-Token header) to call /api/v1/admin/** (crawler,
@@ -57,6 +71,10 @@ management:
   endpoint:
     health:
       show-details: when_authorized
+  health:
+    redis:
+      # Only probe Redis when we actually use it, so a single-instance (no-Redis) deploy stays UP.
+      enabled: ${REDIS_ENABLED:false}
 
 springdoc:
   swagger-ui:
