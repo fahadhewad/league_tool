@@ -54,8 +54,7 @@ A polyglot monorepo. Each layer is independently buildable and testable.
        rate-limited  │           │ cache                          │ trains on
         Riot API ◄───┘     ┌─────▼─────┐  ┌──────────┐            ▼
    (Account/Summoner/      │  Postgres │  │  Redis    │      crawled matches
-    League/Match/Mastery/  └───────────┘  └──────────┘       (Match-V5)
-    Spectator)
+    League/Match/Mastery)  └───────────┘  └──────────┘       (Match-V5)
 ```
 
 See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for details and [`docs/ROADMAP.md`](docs/ROADMAP.md) for phases.
@@ -65,11 +64,12 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for details and [`docs/ROADMA
 ## Riot API endpoints used
 
 `Account-V1` (Riot ID ↔ PUUID) · `Summoner-V4` · `League-V4` (ranked) · `Match-V5` (history + crawl) ·
-`Champion-Mastery-V4` · `Spectator-V5` (live game). Plus **Data Dragon** for static metadata.
+`Champion-Mastery-V4`. Plus **Data Dragon** for static champion metadata (no key required).
 
 **Rate-limit survival is a first-class concern.** Every outbound Riot call goes through a
-rate-limited request queue with Redis-backed token buckets, exponential backoff on `429`,
-and aggressive caching. The goal is **zero 429-driven outages**.
+rate-limited request queue with exponential backoff on `429` and aggressive caching. The limiter
+and cache are in-process by default; set `REDIS_ENABLED=true` to share one budget and cache across
+instances via Redis token buckets. The goal is **zero 429-driven outages**.
 
 ---
 
@@ -119,20 +119,30 @@ confident verdict. Probabilities are **calibrated** (Platt/isotonic) so "58%" me
 | `POST /api/v1/draft/analyze` | Comp snapshot, synergy, counter threats, coverage |
 | `POST /api/v1/draft/recommend` | **Pick recommender**: ranked champs for your open role + reasons |
 | `POST /api/v1/draft/win-probability` | Comp-vs-comp win probability (ML service) |
-| `POST /api/v1/admin/crawl` | Operator: bounded Match-V5 crawl (protect before deploy) |
+| `POST /api/v1/admin/crawl` | Operator: bounded Match-V5 crawl (ranked SR only) |
+| `POST /api/v1/admin/champions/refresh` | Operator: refresh the champion roster from Data Dragon |
 
-Interactive docs at `/swagger-ui.html`. ML service: `GET /health`, `GET /model/info`, `POST /predict`.
+`/api/v1/admin/**` requires the `X-Admin-Token` header (set `ADMIN_API_TOKEN`); with no token set the
+admin surface is disabled. Interactive docs at `/swagger-ui.html`. ML service: `GET /health`,
+`GET /model/info`, `POST /predict`.
 
 ## Status
 
 All seven phases are **built, tested green, and pushed** (backend, ML service, and Electron desktop,
 each with CI): profiles, recent-form, draft analyzer + pick recommender, win-probability ML, match
-crawler + empirical aggregates, and the compliant overlay core.
+crawler + empirical aggregates, and the compliant overlay.
 
-Because the build environment's egress blocked Riot/Data Dragon, everything is verified against
-committed fixtures and synthetic data; **live validation** (key check, the actual crawl, model
-retraining, the in-client overlay) is the remaining step and runs anywhere `*.api.riotgames.com` is
-reachable. See [`docs/ROADMAP.md`](docs/ROADMAP.md) and the [privacy policy](docs/PRIVACY.md).
+The full champion roster loads from Data Dragon (with a `DataDragonService` runtime refresh);
+Postgres is the default store with Flyway-managed migrations; the operator/crawl endpoints are
+gated by an admin token; the rate limiter + cache can run Redis-backed for multi-instance; and the
+crawler ingests ranked Summoner's Rift only, so the empirical aggregates and ML model are clean.
+
+The end-to-end live path has been **validated against the real Riot API**: profile lookup, a ranked
+crawl into Postgres, empirical aggregate computation, retraining the calibrated ML model on the
+crawled corpus, and the backend serving real `ml-model` win probabilities. The remaining live step
+is the **in-client overlay**, which needs a running League client (your PC) and produces / signs
+installers on the target OS. See [`docs/ROADMAP.md`](docs/ROADMAP.md) and the
+[privacy policy](docs/PRIVACY.md).
 
 This is a personal project and is **not endorsed by or affiliated with Riot Games**.
 

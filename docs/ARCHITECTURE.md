@@ -8,10 +8,12 @@ LeagueTool is a polyglot monorepo with three deployable units plus shared data s
 The system of record and orchestration layer. Responsibilities:
 
 - **Riot API gateway** — a single `RiotApiClient` wraps every Riot endpoint behind a
-  **rate-limited request queue** (Redis token buckets) with exponential backoff on `429`
-  and per-region/per-method limit tracking.
-- **Caching** — Redis (shared) + Caffeine (in-process) read-through caches keyed by PUUID /
-  match id / champion. Target cache-hit rate > 80% on repeat lookups.
+  **rate-limited request queue** with exponential backoff on `429`. The limiter is in-process by
+  default; with `REDIS_ENABLED=true` it uses a Lua-scripted Redis sliding window so multiple
+  instances share one budget.
+- **Caching** — read-through caches keyed by PUUID / match id / champion, in-process Caffeine by
+  default or a shared `RedisCacheManager` (same cache names/TTLs) when `REDIS_ENABLED=true`. Target
+  cache-hit rate > 80% on repeat lookups.
 - **Domain services**
   - `ProfileService` — Riot ID → PUUID → summoner + ranked + last-N matches + mastery.
   - `RecentFormService` — last 5–10 games → transparent performance/"tilt" breakdown.
@@ -19,23 +21,33 @@ The system of record and orchestration layer. Responsibilities:
   - `PickRecommenderService` — scores candidate champions for your open role given allies +
     enemies already picked (win-rate × counter × synergy), returns a ranked shortlist + reasons.
   - `WinProbabilityService` — calls the Python ML service for comp-vs-comp probability.
-- **Static data** — `DataDragonService` loads & caches champion/item/spell metadata + icons.
-- **Ingestion worker** — `MatchCrawler` walks the Match-V5 graph from high-elo seeds to build
-  the training corpus (runs as a scheduled/bounded background job, rate-limit aware).
+- **Static data** — the full champion roster ships as a generated seed (Data Dragon class tags +
+  curated roles/CC); `DataDragonService` refreshes it from Data Dragon at runtime (opt-in via
+  `champion.datadragon.refresh-on-startup`, or the admin refresh endpoint) without a restart.
+- **Ingestion worker** — `MatchCrawler` walks the *ranked* Match-V5 graph from high-elo seeds and
+  ingests Summoner's Rift 5v5 only, building both the ML corpus and the empirical aggregates. It is
+  triggered by the admin-token-gated `/api/v1/admin/crawl` (bounded, rate-limit aware).
+- **Persistence** — Postgres by default, schema owned by **Flyway** migrations with Hibernate
+  `ddl-auto=validate`; tests use in-memory H2 (the `test` profile).
+- **Security** — operator endpoints under `/api/v1/admin/**` require the `X-Admin-Token` secret
+  (`AdminAuthFilter`); the surface is disabled (fail-closed) when no token is configured.
 
 Build tool: **Maven** (system Maven + Maven Central are reachable in CI; no wrapper download needed).
 
 ### 2. ML service — Python 3.11 / FastAPI (`ml-service/`)
 Owns the win-probability model end to end:
 
-1. **Featurize** — champion one-hot (×2 teams) + engineered features: pairwise synergy win-rates,
-   lane counter matchups, role/damage-type balance (AD/AP/CC/frontline), team mastery deltas.
-2. **Train** — logistic-regression baseline → LightGBM; **calibrate** (Platt/isotonic).
+1. **Featurize** — champion multi-hot over the roster (×2 teams), so a GBM learns per-champion main
+   effects and pairwise interactions via tree splits. (Engineered synergy/counter/mastery features
+   are a planned extension; today those signals live in the backend's empirical aggregates that
+   power the rules-based analyzer.)
+2. **Train** — LightGBM (HistGradientBoosting fallback); **calibrate** (isotonic). The data source
+   is the real crawled corpus (`--source postgres`) or synthetic drafts (a pipeline check).
 3. **Serve** — `/predict` inference endpoint (target < 100 ms) the backend calls during champ select.
 4. **Evaluate** — held-out accuracy, log-loss, and calibration error (ECE) reporting.
 
-The synergy/counter tables produced here double as the data behind the rules-based draft analyzer
-and pick recommender, so the work pays off twice.
+The backend's synergy/counter aggregates double as the data behind the rules-based draft analyzer
+and pick recommender, so the crawl pays off twice.
 
 ### 3. Desktop client / overlay — Electron (`desktop/`)
 - **LCU connector** — reads the League Client `lockfile` (port + auth token) and subscribes to the
@@ -63,8 +75,8 @@ Electron (champ-select state: allies[], enemies[], myRole, bans[])
 
 ## Rate-limit strategy
 - Dev key ≈ 20 req/s, 100 req/2min. Production keys are higher.
-- A central limiter serializes all Riot calls through Redis token buckets sized per the
-  app limit **and** per-method limits returned in Riot's response headers.
+- A central limiter serializes all Riot calls (sliding windows for the per-second and per-2-minute
+  budgets), in-process by default or coordinated across instances via Redis when enabled.
 - On `429`, respect `Retry-After`; otherwise exponential backoff (2s, 4s, 8s, 16s).
 - Everything cacheable is cached; crawling is bounded so it never starves live traffic.
 

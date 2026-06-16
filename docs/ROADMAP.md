@@ -8,16 +8,17 @@ run in parallel and dominate calendar time, not coding time.
 | **0. Setup** | Repo/CI scaffold, docs, infra (Postgres+Redis), Riot dev account, production-key application | ✅ done (production key application is the user's to file) |
 | **1. Identity + profiles** | Riot ID→PUUID, summoner/ranked lookup, match history, caching + rate-limit queue | ✅ done |
 | **2. Recent-form / tilt** | Last-N-games analysis, performance scoring, party member lookup | ✅ done |
-| **3. Data crawler** | Match-V5 ingestion worker + persistence + aggregates | ✅ built (crawl run is rate-limit-bound wall-clock; needs a live key) |
-| **4. Draft analyzer + pick recommender** | Synergy/counter/role-coverage + champ pick scoring | ✅ done (heuristic seed now; empirical once crawled) |
-| **5. ML model** | Featurize, train, calibrate, evaluate, inference service | ✅ built (trained on synthetic data; retrain on the crawl) |
-| **6. LCU + overlay** | Electron champ-select connector, Live Client Data overlay, ranked name-obfuscation | ✅ built (core logic tested headlessly; overlay needs a live client) |
+| **3. Data crawler** | Match-V5 ingestion worker + persistence + aggregates | ✅ done & live-validated (ranked SR only; bounded, admin-gated) |
+| **4. Draft analyzer + pick recommender** | Synergy/counter/role-coverage + champ pick scoring | ✅ done (heuristic seed, empirical once crawled) |
+| **5. ML model** | Featurize, train, calibrate, evaluate, inference service | ✅ done & live-validated (retrained on the real crawled corpus) |
+| **6. LCU + overlay** | Electron champ-select connector, Live Client Data overlay, ranked name-obfuscation | ✅ built; champ-select + in-game polling wired (overlay needs a live client) |
 | **7. Polish + compliance + launch** | UX, error handling, privacy policy/ToS, beta, production key | 🟢 in progress (privacy policy drafted) |
 
-> **Live validation pending:** the dev environment's egress allowlist blocked Riot/Data Dragon during
-> initial development, so every layer is built and tested against committed fixtures / synthetic data.
-> Running against the live Riot API (key validation, the actual crawl, model retraining) is the
-> remaining step and runs wherever egress to `*.api.riotgames.com` is allowed.
+> **Live validation done:** the end-to-end path has been run against the real Riot API — profile
+> lookup, a ranked crawl into Postgres, empirical aggregate computation, retraining the calibrated
+> ML model on the crawled corpus, and the backend serving real `ml-model` win probabilities.
+> Remaining live work: the in-client overlay (needs a running League client) and packaged installers
+> (built on the target OS). Production-key approval is the user's to file.
 
 ## Milestones
 - **MVP** (web/desktop profile + recent-form + rules draft analyzer + pick recommender, baseline ML): ~3–4 weeks.
@@ -38,8 +39,9 @@ run in parallel and dominate calendar time, not coding time.
 - [x] Overlay is transparent/click-through; no input interference by design.
 
 ### ML
-- [x] Beats the 50% baseline (synthetic held-out: ~0.71). _Real ≥55–60% pending the crawl._
-- [x] Low calibration error (synthetic ECE ≈ 0.034) via isotonic calibration.
+- [x] Beats the 50% baseline. _Retrained on a real ranked crawl (calibrated); a production-grade
+  model needs a far larger corpus than the validation crawl._
+- [x] Low calibration error (ECE ≈ 0.04) via isotonic calibration.
 - [x] Inference is a single GBM call; < 100 ms expected. _To be benchmarked live._
 
 ### Compliance (hard gates)

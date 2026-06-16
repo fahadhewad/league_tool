@@ -40,7 +40,9 @@ not from revealing what Riot chose to hide.
 - No native modules that touch process memory are permitted in `desktop/`.
 
 ## Acceptance criteria (compliance)
-- [ ] Ranked Solo/Flex champ select: all non-party names obfuscated.
-- [ ] No memory reading / injection anywhere in the codebase.
+- [x] Ranked Solo/Flex champ select: all non-party names obfuscated (`rankedAnonymizer`, applied at
+  the source before any renderer receives participants).
+- [x] No memory reading / injection anywhere in the codebase (official local APIs only).
 - [ ] Privacy policy published; Riot General Policies adhered to before production-key request.
-- [ ] Zero `429`-driven outages (rate-limit queue verified under load).
+  _(policy drafted; publish before requesting a production key)_
+- [ ] Zero `429`-driven outages (rate-limit queue verified under sustained load).
