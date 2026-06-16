@@ -1,6 +1,17 @@
 spring:
   application:
     name: leaguetool-backend
+  datasource:
+    # Defaults to an in-memory H2 (PostgreSQL compatibility mode) so the app boots and tests run
+    # anywhere. For a persistent crawl, override with Postgres via env, e.g.:
+    #   SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/leaguetool
+    url: ${SPRING_DATASOURCE_URL:jdbc:h2:mem:leaguetool;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    open-in-view: false
 
 server:
   port: ${SERVER_PORT:8080}
