@@ -1,0 +1,13 @@
+# Test profile (activated for all tests via the Surefire spring.profiles.active=test property).
+# Overrides only the persistence layer: an in-memory H2 in PostgreSQL mode, schema created by
+# Hibernate, with Flyway off. Everything else is inherited from application.yml.
+spring:
+  datasource:
+    url: jdbc:h2:mem:leaguetool;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  flyway:
+    enabled: false
