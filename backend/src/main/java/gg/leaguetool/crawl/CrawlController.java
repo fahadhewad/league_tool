@@ -12,8 +12,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Admin trigger for a bounded match crawl. NOTE: this is an operator endpoint and must be protected
- * (network ACL / auth) before any public deployment — it drives outbound Riot traffic.
+ * Admin trigger for a bounded match crawl. This is an operator endpoint and drives outbound Riot
+ * traffic, so it sits under {@code /api/v1/admin} and is gated by the admin-token filter
+ * ({@code AdminAuthFilter}); it is disabled entirely unless {@code ADMIN_API_TOKEN} is set.
  */
 @RestController
 @RequestMapping("/api/v1/admin")
