@@ -109,10 +109,32 @@ confident verdict. Probabilities are **calibrated** (Platt/isotonic) so "58%" me
 
 ---
 
+## Backend API (v1)
+
+| Method & path | Purpose |
+|---|---|
+| `GET /api/v1/profiles/{platform}/{gameName}/{tagLine}` | Profile: ranked, last-N matches, top mastery |
+| `GET /api/v1/form/{platform}/{gameName}/{tagLine}` | Recent-form / tilt score with breakdown |
+| `GET /api/v1/champions` (`?role=`) · `GET /api/v1/champions/{id}` | Champion metadata |
+| `POST /api/v1/draft/analyze` | Comp snapshot, synergy, counter threats, coverage |
+| `POST /api/v1/draft/recommend` | **Pick recommender**: ranked champs for your open role + reasons |
+| `POST /api/v1/draft/win-probability` | Comp-vs-comp win probability (ML service) |
+| `POST /api/v1/admin/crawl` | Operator: bounded Match-V5 crawl (protect before deploy) |
+
+Interactive docs at `/swagger-ui.html`. ML service: `GET /health`, `GET /model/info`, `POST /predict`.
+
 ## Status
 
-Early development. Track progress in [`docs/ROADMAP.md`](docs/ROADMAP.md). This is a personal
-project and is **not endorsed by or affiliated with Riot Games**.
+All seven phases are **built, tested green, and pushed** (backend, ML service, and Electron desktop,
+each with CI): profiles, recent-form, draft analyzer + pick recommender, win-probability ML, match
+crawler + empirical aggregates, and the compliant overlay core.
+
+Because the build environment's egress blocked Riot/Data Dragon, everything is verified against
+committed fixtures and synthetic data; **live validation** (key check, the actual crawl, model
+retraining, the in-client overlay) is the remaining step and runs anywhere `*.api.riotgames.com` is
+reachable. See [`docs/ROADMAP.md`](docs/ROADMAP.md) and the [privacy policy](docs/PRIVACY.md).
+
+This is a personal project and is **not endorsed by or affiliated with Riot Games**.
 
 ## License
 
