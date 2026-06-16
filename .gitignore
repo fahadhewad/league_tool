@@ -1,0 +1,54 @@
+# ---- Secrets / local config ----
+.env
+.env.local
+*.local.env
+**/application-local.yml
+**/application-local.properties
+*.lockfile
+riot-api-key.txt
+secrets/
+
+# ---- Java / Maven ----
+backend/target/
+**/*.class
+**/*.jar
+!**/.mvn/wrapper/maven-wrapper.jar
+**/hs_err_pid*
+**/.mvn/timing.properties
+
+# ---- Gradle (if ever used) ----
+.gradle/
+build/
+
+# ---- Python / ML service ----
+ml-service/.venv/
+**/__pycache__/
+**/*.pyc
+ml-service/.pytest_cache/
+ml-service/.mypy_cache/
+ml-service/dist/
+ml-service/*.egg-info/
+ml-service/models/*.pkl
+ml-service/models/*.txt
+ml-service/models/*.onnx
+ml-service/data/*.parquet
+ml-service/data/*.csv
+!ml-service/data/.gitkeep
+
+# ---- Node / Electron desktop ----
+desktop/node_modules/
+desktop/dist/
+desktop/out/
+desktop/.vite/
+npm-debug.log*
+
+# ---- IDE / OS ----
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+
+# ---- Logs / runtime ----
+*.log
+logs/
